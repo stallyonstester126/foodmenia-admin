@@ -4,6 +4,7 @@ import Link from "next/link";
 import AdminShell from "@/components/AdminShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { showAdminConfirm } from "@/lib/adminDialogStore";
 
 interface Venue {
   id: number;
@@ -264,13 +265,20 @@ export default function AdminDashboardPage() {
                           </button>
                           <button
                             type="button"
-                            onClick={() => {
-                              if (confirm(`Are you sure you want to delete "${venue.name}"?`)) {
+                            onClick={async () => {
+                              const confirmed = await showAdminConfirm({
+                                title: "Delete Pending Venue?",
+                                message: `Are you sure you want to permanently delete "${venue.name}"?`,
+                                confirmText: "Yes, Delete",
+                                cancelText: "Cancel",
+                                variant: "danger",
+                              });
+                              if (confirmed) {
                                 deleteMutation.mutate(venue.id);
                               }
                             }}
                             disabled={deleteMutation.isPending}
-                            className="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-3 py-2 rounded-xl transition-all border border-red-200"
+                            className="bg-red-50 hover:bg-red-100 text-red-600 font-bold text-xs px-3 py-2 rounded-xl transition-all border border-red-200 cursor-pointer"
                           >
                             Delete 🗑️
                           </button>

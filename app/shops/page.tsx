@@ -5,6 +5,7 @@ import Link from "next/link";
 import AdminShell from "@/components/AdminShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { showAdminConfirm } from "@/lib/adminDialogStore";
 
 interface Cuisine {
   id: number;
@@ -57,20 +58,28 @@ export default function AdminShopsPage() {
     },
   });
 
-  const handleToggleActive = (shop: Shop) => {
+  const handleToggleActive = async (shop: Shop) => {
     if (shop.is_active) {
-      const confirmed = confirm(
-        `Are you sure you want to BLOCK "${shop.name}"?\n\nBlocking this shop will hide it from customer mart & grocery listings.`
-      );
+      const confirmed = await showAdminConfirm({
+        title: "Block Shop?",
+        message: `Are you sure you want to BLOCK "${shop.name}"?\n\nBlocking this shop will hide it from customer mart & grocery listings immediately.`,
+        confirmText: "Yes, Block Shop",
+        cancelText: "Keep Active",
+        variant: "danger",
+      });
       if (!confirmed) return;
     }
     toggleMutation.mutate(shop.id);
   };
 
-  const handleDelete = (shop: Shop) => {
-    const confirmed = confirm(
-      `Are you sure you want to PERMANENTLY DELETE "${shop.name}"?\n\nThis action cannot be undone.`
-    );
+  const handleDelete = async (shop: Shop) => {
+    const confirmed = await showAdminConfirm({
+      title: "Permanently Delete Shop?",
+      message: `Are you sure you want to PERMANENTLY DELETE "${shop.name}"?\n\nThis action cannot be undone.`,
+      confirmText: "Yes, Delete Permanently",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
     if (!confirmed) return;
     deleteMutation.mutate(shop.id);
   };

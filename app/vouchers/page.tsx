@@ -4,6 +4,7 @@ import { useState } from "react";
 import AdminShell from "@/components/AdminShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { showAdminAlert, showAdminConfirm } from "@/lib/adminDialogStore";
 
 interface Voucher {
   id: number;
@@ -150,7 +151,11 @@ export default function AdminVouchersPage() {
     },
     onError: (err: unknown) => {
       const msg = (err as { response?: { data?: { message?: string } }; message?: string })?.response?.data?.message || (err as Error)?.message || "Failed to delete voucher.";
-      alert(msg);
+      showAdminAlert({
+        title: "Deletion Failed",
+        message: msg,
+        variant: "error",
+      });
     },
   });
 
@@ -197,12 +202,22 @@ export default function AdminVouchersPage() {
     toggleMutation.mutate(voucher.id);
   };
 
-  const handleDelete = (voucher: Voucher) => {
+  const handleDelete = async (voucher: Voucher) => {
     if (voucher.redeemed_count > 0) {
-      alert(`Cannot delete voucher "${voucher.code}" because it has already been redeemed ${voucher.redeemed_count} times. Please deactivate it instead.`);
+      await showAdminAlert({
+        title: "Cannot Delete Voucher",
+        message: `Cannot delete voucher "${voucher.code}" because it has already been redeemed ${voucher.redeemed_count} time(s). Please deactivate it instead.`,
+        variant: "warning",
+      });
       return;
     }
-    const confirmed = confirm(`Are you sure you want to permanently delete voucher "${voucher.code}"?`);
+    const confirmed = await showAdminConfirm({
+      title: "Permanently Delete Voucher?",
+      message: `Are you sure you want to permanently delete voucher "${voucher.code}"?\n\nThis promotional code will be removed permanently.`,
+      confirmText: "Yes, Delete",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
     if (confirmed) deleteMutation.mutate(voucher.id);
   };
 

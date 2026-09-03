@@ -5,6 +5,7 @@ import Link from "next/link";
 import AdminShell from "@/components/AdminShell";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiClient } from "@/lib/apiClient";
+import { showAdminConfirm } from "@/lib/adminDialogStore";
 
 interface Cuisine {
   id: number;
@@ -55,20 +56,28 @@ export default function AdminRestaurantsPage() {
     },
   });
 
-  const handleToggleActive = (restaurant: Restaurant) => {
+  const handleToggleActive = async (restaurant: Restaurant) => {
     if (restaurant.is_active) {
-      const confirmed = confirm(
-        `Are you sure you want to BLOCK "${restaurant.name}"?\n\nBlocking this restaurant will hide it from customer food searches.`
-      );
+      const confirmed = await showAdminConfirm({
+        title: "Block Restaurant?",
+        message: `Are you sure you want to BLOCK "${restaurant.name}"?\n\nBlocking this restaurant will hide it from customer food searches immediately.`,
+        confirmText: "Yes, Block Restaurant",
+        cancelText: "Keep Active",
+        variant: "danger",
+      });
       if (!confirmed) return;
     }
     toggleMutation.mutate(restaurant.id);
   };
 
-  const handleDelete = (restaurant: Restaurant) => {
-    const confirmed = confirm(
-      `Are you sure you want to PERMANENTLY DELETE "${restaurant.name}"?\n\nThis action cannot be undone.`
-    );
+  const handleDelete = async (restaurant: Restaurant) => {
+    const confirmed = await showAdminConfirm({
+      title: "Permanently Delete Restaurant?",
+      message: `Are you sure you want to PERMANENTLY DELETE "${restaurant.name}"?\n\nThis action cannot be undone.`,
+      confirmText: "Yes, Delete Permanently",
+      cancelText: "Cancel",
+      variant: "danger",
+    });
     if (!confirmed) return;
     deleteMutation.mutate(restaurant.id);
   };
