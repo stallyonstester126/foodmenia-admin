@@ -30,7 +30,7 @@ export default function AdminTaxFeePage() {
   const [platformFee, setPlatformFee] = useState<number>(19.99);
   const [defaultDeliveryFee, setDefaultDeliveryFee] = useState<number>(49.0);
   const [isTaxEnabled, setIsTaxEnabled] = useState<boolean>(true);
-  const [currency, setCurrency] = useState<string>("Rs.");
+  const [currency, setCurrency] = useState<string>("USD ($)");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Simulator state
@@ -42,7 +42,7 @@ export default function AdminTaxFeePage() {
       setPlatformFee(settings.platform_fee ?? 19.99);
       setDefaultDeliveryFee(settings.default_delivery_fee ?? 49.0);
       setIsTaxEnabled(settings.is_tax_enabled ?? true);
-      setCurrency(settings.currency || "Rs.");
+      setCurrency(settings.currency || "USD ($)");
     }
   }, [settings]);
 
@@ -186,16 +186,42 @@ export default function AdminTaxFeePage() {
               {/* Currency Display Symbol */}
               <div className="flex flex-col gap-1.5 pt-3 border-t border-gray-100">
                 <label className="text-xs font-semibold text-gray-700 flex items-center justify-between">
-                  <span>Display Currency Symbol</span>
-                  <span className="text-2xs text-gray-400 font-normal">e.g. Rs., $, AED, PKR</span>
+                  <span>Platform Default Currency</span>
+                  <span className="text-2xs text-gray-400 font-normal">Used across menus, orders, and checkout</span>
                 </label>
-                <input
-                  type="text"
-                  value={currency}
-                  onChange={(e) => setCurrency(e.target.value)}
-                  maxLength={6}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#FCBA08]/50"
-                />
+                <select
+                  value={
+                    ["USD ($)", "EUR (€)", "GBP (£)", "PKR (Rs.)", "AED"].includes(currency)
+                      ? currency
+                      : "CUSTOM"
+                  }
+                  onChange={(e) => {
+                    if (e.target.value === "CUSTOM") {
+                      setCurrency("$");
+                    } else {
+                      setCurrency(e.target.value);
+                    }
+                  }}
+                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 text-sm font-semibold text-[#1A1A1A] bg-white focus:outline-none focus:ring-2 focus:ring-[#FCBA08]/50 cursor-pointer"
+                >
+                  <option value="USD ($)">USD ($) - US Dollar</option>
+                  <option value="EUR (€)">EUR (€) - Euro</option>
+                  <option value="GBP (£)">GBP (£) - British Pound</option>
+                  <option value="PKR (Rs.)">PKR (Rs.) - Pakistani Rupee</option>
+                  <option value="AED">AED - UAE Dirham</option>
+                  <option value="CUSTOM">Custom Symbol / Code</option>
+                </select>
+
+                {!["USD ($)", "EUR (€)", "GBP (£)", "PKR (Rs.)", "AED"].includes(currency) && (
+                  <input
+                    type="text"
+                    value={currency}
+                    onChange={(e) => setCurrency(e.target.value)}
+                    placeholder="e.g. $, CAD, AUD"
+                    maxLength={10}
+                    className="w-full mt-1 px-4 py-2 rounded-xl border border-gray-200 text-sm font-semibold text-[#1A1A1A] focus:outline-none focus:ring-2 focus:ring-[#FCBA08]/50"
+                  />
+                )}
               </div>
             </div>
 
