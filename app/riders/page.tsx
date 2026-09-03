@@ -54,6 +54,7 @@ export default function AdminRidersPage() {
 
   useEffect(() => {
     fetchRiders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [search, statusFilter]);
 
   const handleUpdateStatus = async (riderId: number, accountStatus: string) => {

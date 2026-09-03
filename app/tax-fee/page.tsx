@@ -20,7 +20,7 @@ interface PlatformSettings {
 export default function AdminTaxFeePage() {
   const queryClient = useQueryClient();
 
-  const { data: settings, isLoading, isError } = useQuery<PlatformSettings>({
+  const { data: settings, isLoading } = useQuery<PlatformSettings>({
     queryKey: ["admin-platform-settings"],
     queryFn: () => apiClient.get<PlatformSettings>("/admin/platform-settings"),
   });
